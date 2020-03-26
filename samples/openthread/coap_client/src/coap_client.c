@@ -17,6 +17,7 @@
 LOG_MODULE_REGISTER(coap_client, CONFIG_COAP_CLIENT_LOG_LEVEL);
 
 #define OT_CONNECTION_LED DK_LED1
+#define MTD_SED_LED DK_LED3
 
 /* Options supported by the server */
 static const char *const light_option[] = { LIGHT_URI_PATH, NULL };
@@ -38,12 +39,12 @@ static struct sockaddr_in6 unique_local_addr = { .sin6_family = AF_INET6,
 						 .sin6_port = htons(COAP_PORT),
 						 .sin6_addr.s6_addr = {0, },
 						 .sin6_scope_id = 0U
-}
-;
+};
 
 static struct k_work unicast_light_work;
 static struct k_work multicast_light_work;
 static struct k_work provisioning_work;
+static struct k_work toggle_MTD_SED_work;
 
 static int on_provisioning_reply(const struct coap_packet *response,
 				 struct coap_reply *reply,
@@ -115,6 +116,50 @@ static void send_provisioning_request(struct k_work *item)
 			  provisioning_option, NULL, 0u, on_provisioning_reply);
 }
 
+static struct otInstance *openthread_get_default_instance(void)
+{
+	struct otInstance *instance = NULL;
+	struct net_if *iface;
+	struct openthread_context *ot_context;
+
+	iface = net_if_get_first_by_type(&NET_L2_GET_NAME(OPENTHREAD));
+	if (!iface) {
+		LOG_ERR("There is no net interface for OpenThread");
+		goto end;
+	}
+
+	ot_context = net_if_l2_data(iface);
+	if (!ot_context) {
+		LOG_ERR("There is no Openthread context in net interface data");
+		goto end;
+	}
+
+	instance = ot_context->instance;
+
+end:
+	return instance;
+}
+
+static void toggle_minimal_sleepy_end_device(struct k_work *item)
+{
+	otError error;
+	struct otInstance *instance = openthread_get_default_instance();
+	otLinkModeConfig mode = otThreadGetLinkMode(instance);
+
+	if (mode.mRxOnWhenIdle) {
+		mode.mRxOnWhenIdle = false;
+		dk_set_led_off(MTD_SED_LED);
+	} else {
+		mode.mRxOnWhenIdle = true;
+		dk_set_led_on(MTD_SED_LED);
+	}
+
+	error = otThreadSetLinkMode(instance, mode);
+	if (error != OT_ERROR_NONE) {
+		LOG_ERR("Failed to set MLE link mode configuration");
+	}
+}
+
 static void on_button_changed(u32_t button_state, u32_t has_changed)
 {
 	u32_t buttons = button_state & has_changed;
@@ -125,6 +170,10 @@ static void on_button_changed(u32_t button_state, u32_t has_changed)
 
 	if (buttons & DK_BTN2_MSK) {
 		k_work_submit(&multicast_light_work);
+	}
+
+	if (IS_ENABLED(CONFIG_OPENTHREAD_MTD_SED) && (buttons & DK_BTN3_MSK)) {
+		k_work_submit(&toggle_MTD_SED_work);
 	}
 
 	if (buttons & DK_BTN4_MSK) {
@@ -154,30 +203,6 @@ static void on_thread_state_changed(u32_t flags, void *p_context)
 		otThreadGetDeviceRole(p_context));
 }
 
-static struct otInstance *openthread_get_default_instance(void)
-{
-	struct otInstance *instance = NULL;
-	struct net_if *iface;
-	struct openthread_context *ot_context;
-
-	iface = net_if_get_first_by_type(&NET_L2_GET_NAME(OPENTHREAD));
-	if (!iface) {
-		LOG_ERR("There is no net interface for OpenThread");
-		goto end;
-	}
-
-	ot_context = net_if_l2_data(iface);
-	if (!ot_context) {
-		LOG_ERR("There is no Openthread context in net interface data");
-		goto end;
-	}
-
-	instance = ot_context->instance;
-
-end:
-	return instance;
-}
-
 void main(void)
 {
 	int ret;
@@ -188,6 +213,11 @@ void main(void)
 	k_work_init(&unicast_light_work, toggle_one_light);
 	k_work_init(&multicast_light_work, toggle_mesh_lights);
 	k_work_init(&provisioning_work, send_provisioning_request);
+
+	if (IS_ENABLED(CONFIG_OPENTHREAD_MTD_SED)) {
+		k_work_init(&toggle_MTD_SED_work,
+			    toggle_minimal_sleepy_end_device);
+	}
 
 	ret = dk_buttons_init(on_button_changed);
 	if (ret) {
