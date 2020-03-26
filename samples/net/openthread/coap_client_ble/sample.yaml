@@ -1,0 +1,7 @@
+sample:
+  name: OpenThread BLE CoAP Client
+  description: Test multiprotocol, OpenThread-BLE coexistance
+tests:
+  sample.net.openthread.coap_client_ble:
+  tags: net openthread bluetooth mpsl coap
+  platform_whitelist: nrf52840_pca10056 nrf52833_pca10100
