@@ -126,7 +126,7 @@ manifest:
     - name: openthread
       path: modules/lib/openthread
       remote: zephyrproject
-      revision: 3c6191eb4e8ca44b5f4eeaa696837bce14e83c69
+      revision: 497590aa126c331eb1447f699f1c710e0de714c0 
     - name: littlefs
       path: modules/fs/littlefs
       remote: zephyrproject
