@@ -13,7 +13,7 @@ set(NRF_SUPPORTED_BOARDS
 include($ENV{ZEPHYR_BASE}/../nrf/cmake/boilerplate.cmake)
 include($ENV{ZEPHYR_BASE}/cmake/app/boilerplate.cmake NO_POLICY_SCOPE)
 
-project(openthread_coap_client)
+project(openthread_coap_server)
 
 FILE(GLOB app_sources src/*.c)
 target_sources(app PRIVATE ${app_sources})

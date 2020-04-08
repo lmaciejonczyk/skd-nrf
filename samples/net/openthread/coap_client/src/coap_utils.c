@@ -1,20 +1,18 @@
+#include <zephyr.h>
+#include <errno.h>
+#include <logging/log.h>
+#include <net/coap.h>
+#include <net/net_ip.h>
+#include <net/net_mgmt.h>
+#include <net/socket.h>
+#include <net/udp.h>
+#include <sys/byteorder.h>
+#include <sys/printk.h>
+
 #include "coap_utils.h"
 
-#include <logging/log.h>
 LOG_MODULE_REGISTER(coap_utils, CONFIG_COAP_UTILS_LOG_LEVEL);
 
-#include <errno.h>
-#include <sys/printk.h>
-#include <sys/byteorder.h>
-#include <zephyr.h>
-
-#include <net/socket.h>
-#include <net/net_mgmt.h>
-#include <net/net_ip.h>
-#include <net/udp.h>
-#include <net/coap.h>
-
-#define PEER_PORT 5683
 #define MAX_COAP_MSG_LEN 256
 #define COAP_VER 1
 #define COAP_TOKEN_LEN 8
@@ -30,23 +28,29 @@ const static int nfds = 1;
 static struct pollfd fds;
 static struct coap_reply replies[COAP_MAX_REPLIES];
 
-static void coap_open_socket(int *sock) {
+static int coap_open_socket(void)
+{
+	int sock;
+
 	while (1) {
-		*sock = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
-		if (*sock < 0) {
+		sock = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
+		if (sock < 0) {
 			LOG_ERR("Failed to create UDP socket %d", errno);
 			k_sleep(COAP_OPEN_SOCKET_SLEEP);
 			continue;
 		}
 		break;
 	}
+
+	return sock;
 }
 
-static void coap_close_socket(int socket) {
+static void coap_close_socket(int socket)
+{
 	(void)close(socket);
 }
 
-static void coap_receive()
+static void coap_receive(void)
 {
 	static u8_t buf[MAX_COAP_MSG_LEN + 1];
 
@@ -83,7 +87,7 @@ static void coap_receive()
 			fds.revents = 0;
 
 			coap_close_socket(fds.fd);
-			coap_open_socket(&(fds.fd));
+			fds.fd = coap_open_socket();
 
 			LOG_INF("Socket has been re-open");
 
@@ -173,23 +177,15 @@ end:
 	return ret;
 }
 
-static int coap_send_message(struct in6_addr *dst_addr,
+static int coap_send_message(const struct sockaddr_in6 *addr6,
 			     struct coap_packet *request)
 {
-	struct sockaddr_in6 addr6;
-
-	addr6.sin6_family = AF_INET6;
-	addr6.sin6_port = htons(PEER_PORT);
-	addr6.sin6_scope_id = 0U;
-
-	memcpy(&addr6.sin6_addr, dst_addr, sizeof(addr6.sin6_addr));
-
 	return sendto(fds.fd, request->data, request->offset, 0,
-		      (struct sockaddr *)&addr6, sizeof(addr6));
+		      (const struct sockaddr *)addr6, sizeof(*addr6));
 }
 
 static void coap_set_response_callback(struct coap_packet *request,
-				      coap_reply_t reply_cb)
+				       coap_reply_t reply_cb)
 {
 	struct coap_reply *reply;
 
@@ -204,8 +200,7 @@ void coap_init(void)
 {
 	fds.events = POLLIN;
 	fds.revents = 0;
-
-	coap_open_socket(&(fds.fd));
+	fds.fd = coap_open_socket();
 
 	/* start sock receive thread */
 	k_thread_create(&receive_thread_data, receive_stack_area,
@@ -218,10 +213,9 @@ void coap_init(void)
 	LOG_DBG("CoAP socket receive thread started");
 }
 
-int coap_send_non_con_request(enum coap_method method,
-			      struct in6_addr *dst_addr,
-			      const char *const *uri_path_options,
-			      u8_t *payload, u16_t payload_size)
+int coap_send_request(enum coap_method method, const struct sockaddr_in6 *addr6,
+		      const char *const *uri_path_options, u8_t *payload,
+		      u16_t payload_size, coap_reply_t reply_cb)
 {
 	int ret;
 	struct coap_packet request;
@@ -233,33 +227,11 @@ int coap_send_non_con_request(enum coap_method method,
 		goto end;
 	}
 
-	ret = coap_send_message(dst_addr, &request);
-	if (ret < 0) {
-		LOG_ERR("Transmission failed: %d", errno);
-		goto end;
+	if (reply_cb != NULL) {
+		coap_set_response_callback(&request, reply_cb);
 	}
 
-end:
-	return ret;
-}
-
-int coap_send_con_request(enum coap_method method, struct in6_addr *dst_addr,
-			  const char *const *uri_path_options, u8_t *payload,
-			  u16_t payload_size, coap_reply_t reply_cb)
-{
-	int ret;
-	struct coap_packet request;
-	u8_t buf[MAX_COAP_MSG_LEN];
-
-	ret = coap_init_request(method, COAP_TYPE_NON_CON, uri_path_options,
-				payload, payload_size, &request, buf);
-	if (ret < 0) {
-		goto end;
-	}
-
-	coap_set_response_callback(&request, reply_cb);
-
-	ret = coap_send_message(dst_addr, &request);
+	ret = coap_send_message(addr6, &request);
 	if (ret < 0) {
 		LOG_ERR("Transmission failed: %d", errno);
 		goto end;

@@ -1,14 +1,12 @@
-.. _coap_client_sample:
+.. _coap_server_sample:
 
-openthread: coap_client
+openthread: coap_server
 ##################
 
-The openthread coap_client sample demonstrates interactions between nodes performing different Thread roles with the use of OpenThread and CoAP protocol.
+The openthread coap_server sample demonstrates interactions between nodes performing different Thread roles with the use of OpenThread and CoAP protocol.
 
 Overview
 ********
-
-The client node can control the state of BSP_LED_3 on server nodes. It can turn on the LED either on every server node in the network with a multicast message, or on a single specific server node that is paired with the client node.
 
 
 Requirements
@@ -21,18 +19,6 @@ Requirements
 
 User interface
 **************
-
-The following board buttons are used by this sample:
-
-BUTTON 1:
-   Pressing results in sending a unicast LIGHT_TOGGLE message to the /light resource on a paired device. If no device is paired with the specific client node, pressing the button has no effect.
-
-BUTTON 2:
-    Pressing results in sending a multicast LIGHT_ON or a LIGHT_OFF message (alternatively) to the /light resource. Sending a LIGHT_ON/LIGHT_OFF message instead of LIGHT_TOGGLE allows to synchronize the state of the LEDs on several server nodes.
-
-BUTTON 3:
-    Pressing results in sending a multicast pairing request to the /provisioning resource.
-
 
 Testing
 =======
