@@ -217,6 +217,14 @@
 
 .. _`OpenThread CLI Reference`: https://github.com/openthread/openthread/blob/master/src/cli/README.md
 
+.. _`OpenThread.io`: https://openthread.io
+
+.. _`Thread Group`: https://www.threadgroup.org
+
+.. _`Creative Commons 3.0 Attribution License`: https://creativecommons.org/licenses/by/3.0/
+
+.. _`shared by Google`: https://developers.google.com/readme/policies/
+
 
 .. ### Links to other documentation
 
@@ -245,6 +253,7 @@
 .. _`AWS Simple Storage Service (S3)`: https://docs.aws.amazon.com/s3/index.html
 .. _`AWS S3 Developer Guide: Using Bucket Policies and User Policies`: https://docs.aws.amazon.com/AmazonS3/latest/dev/using-iam-policies.html
 .. _`AWS S3 Developer Guide: Bucket Policy Examples`: https://docs.aws.amazon.com/AmazonS3/latest/dev/example-bucket-policies.html
+
 
 .. ### Links to specific files on GitHub
 
