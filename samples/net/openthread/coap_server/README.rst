@@ -3,40 +3,40 @@
 Thread: CoAP Server
 #######################
 
-The Thread CoAP Server sample demonstrates controlling light resources of other nodes within an OpenThread network.
-This sample exposes resorces in the network and requires another sample to access them, for example :ref:`coap_client_sample`.
-
+The Thread CoAP Server sample demonstrates controlling light resources within an OpenThread network.
+This sample exposes resorces in the network and requires another sample that is compatible with the OpenThread network to access them.
+The recommended sample referenced on this page is :ref:`coap_client_sample`.
 
 Overview
 ********
-This example demnstrates how to expose resources that can be accessed by other devices in the network.
+
+This sample demnstrates how to expose resources that can be accessed by other devices in the same Thread network.
 You can use this sample application as a starting point to implement a :ref:`CoAP <zephyr:coap_sock_interface>` application.
 
-Following CoAP resources are exposed on the network by this sample":
+The following CoAP resources are exposed on the network by this sample:
 
 * ``/light`` - used to control LED 4
 * ``/provisioning`` - used to perform provisioning
 
-
-This sample uses native `OpenThread CoAP API`_ for communication.
-
-For example usage of Zephyr CoAp API refer to :ref:`coap_client_sample`
+This sample uses the native `OpenThread CoAP API`_ for communication.
+For new application development, use :ref:`Zephyr's CoAP API<zephyr:coap_sock_interface>`.
+For example usage of the Zephyr CoAp API, see the :ref:`coap_client_sample` sample.
 
 Requirements
 ************
 
-* At least one of the following development boards for use as the Thread CoAP Server:
+* One or more of the following development kits for Thread CoAP Server:
 
   * |nRF52840DK|
   * |nRF52833DK|
 
-* At least one of the development boards programmed with :ref:`coap_client_sample`.
+* One or more compatible development kits programmed with the :ref:`coap_client_sample` sample.
 
 User interface
 **************
 
 Button 4:
-    Pressing results in entering the pairing mode for a the limited period of time.
+    Pressing results in entering the pairing mode for a limited period of time.
 
 LED 3:
     Blinks when the pairing mode is enabled.
@@ -53,34 +53,36 @@ Building and running
 Testing
 =======
 
-After building the sample, test it by performing the following steps:
+After building the sample and programming it to your development kit, test it by performing the following steps:
 
-#. Program one or more boards with the Thread Simple CoAP Client and the Thread Simple CoAP Server.
-#. Turn on the Simple CoAP Server or Simple CoAP Client node.
-#. Turn on any of the other nodes.
-   They will enter the network as Children, and Simple CoAP Client or Simple CoAP Server nodes will gradually become Routers.
+#. Program at least one development kit with the :ref:`coap_client_sample` sample and reset it.
+#. Turn on the Simple CoAP Client node.
+   This node becomes the Thread network Leader.
+#. Turn on all the other nodes, including the Simple CoAP Server nodes.
+   They enter the network as Children, and will gradually become Routers.
 
    .. note::
-      It may take up to 15 seconds for the Thread to establish network.
+      It may take up to 15 seconds for Thread to establish network.
 
 #. Press Button 2 on the client node to control LED 4 on all server nodes.
-#. Pair a client with a server.
+#. Pair a client with a server by completing the following steps:
 
-   * Press Button 4 on a server node to enable pairing.
-   * Press Button 3 on any client node to pair the two nodes.
+   a. Press Button 4 on a server node to enable pairing.
+   #. Press Button 3 on a client node to pair it with the server node in the pairing mode.
 
 #. Press Button 1 on the client node to control the LED 4 on paired server node.
 
-.. tip::
-    You can connect to any of the Simple CoAP Server or Simple CoAP Client nodes through a serial port and run OpenThread CLI commands.
-    For more details see :ref:`putty`
+Running OpenThread CLI commands
+-------------------------------
 
-      .. note::
-          In Zephyr shell every OpenThread command needs to be prepended with the `ot` keyword e.g. ``ot channel 20``.
+You can connect to any of the Simple CoAP Server or Simple CoAP Client nodes through a serial port and run OpenThread CLI commands.
+For more details, see :ref:`putty`.
 
-      .. note::
-          For complete CLI documentation, refer to `OpenThread CLI Reference`_.
+.. note::
+    In Zephyr shell, every OpenThread command needs to be prepended with the `ot` keyword.
+    For example, ``ot channel 20``.
 
+For complete CLI documentation, refer to `OpenThread CLI Reference`_.
 
 Dependencies
 ************
