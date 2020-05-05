@@ -46,7 +46,7 @@ LED 4:
 
 Building and running
 ********************
-.. |sample path| replace:: :file:`samples/net/openthread/coap_server`
+.. |sample path| replace:: :file:`samples/openthread/coap_server`
 
 .. include:: /includes/build_and_run.txt
 

@@ -51,7 +51,7 @@ Button 3:
 
 Building and running
 ********************
-.. |sample path| replace:: :file:`samples/net/openthread/coap_client`
+.. |sample path| replace:: :file:`samples/openthread/coap_client`
 
 .. include:: /includes/build_and_run.txt
 

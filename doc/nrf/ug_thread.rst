@@ -121,17 +121,36 @@ You can also change the default values for the following options:
 * ``CONFIG_OPENTHREAD_PANID`` - By default set to ``43981``.
   You can set any value ranging from ``0`` to ``65535``.
 
-Thread commissioner
--------------------
+Thread commissioning
+--------------------
 
-Thread commissioner coordinates the process of adding new Thread devices to the network.
-It is optional, because the Thread :ref:`samples` in |NCS| use a hardcoded network information.
+Thread commissioning is the process of adding new Thread devices to the network.
+It involves two devices: a Commissioner that is already in the Thread network and a Joiner that wants to become a member of the network.
 
-To enable Thread commissioner, set the following Kconfig options to the provided values:
+Configuring this process is optional, because the Thread :ref:`samples` in |NCS| use hardcoded network information.
+
+If you want to manually enable the Thread network Commissioner role on a device, set the following Kconfig options to the provided values:
 
 * ``CONFIG_OPENTHREAD_COMMISSIONER`` to ``y``.
 * ``CONFIG_MBEDTLS_HEAP_SIZE`` to ``8192``.
-* ``CONFIG_SHELL_STACK_SIZE`` to ``3072``.
+
+To enable the Thread network Joiner role on a device, set the following Kconfig options to the provided values:
+
+* ``CONFIG_OPENTHREAD_JOINER`` to ``y``.
+* ``CONFIG_MBEDTLS_HEAP_SIZE`` to ``8192``.
+
+The MBEDTLS heap size needs to be increased for both Commissioner and Joiner, because the joining process is memory-consuming and requires at least 8 KB of RAM.
+
+You can also configure how the commissioning process is to be started:
+
+* Automatically after Joiner's power up with the ``CONFIG_OPENTHREAD_JOINER_AUTOSTART`` option, configured for the Joiner device.
+* Started from the application.
+* Triggered by Command Line Interface commands.
+  In this case, the shell stack size must be increased to at least 3 KB by setting the following option:
+
+  * ``CONFIG_SHELL_STACK_SIZE`` to ``3072``.
+
+For more details about the commissioning process, see `Thread Commissioning on OpenThread portal`_.
 
 OpenThread stack logging options
 --------------------------------
@@ -161,7 +180,7 @@ If you want to get logging output related to the Zephyr's L2 layer, enable one o
 * ``CONFIG_OPENTHREAD_L2_LOG_LEVEL_INF`` - Enables logging for informational messages, errors, and warnings.
 * ``CONFIG_OPENTHREAD_L2_LOG_LEVEL_DBG`` - Enables logging for debug messages, informational messages, errors, and warnings.
 
-Chosing one of these options will enable writing the appropriate information in the L2 debug log.
+Choosing one of these options will enable writing the appropriate information in the L2 debug log.
 
 Additionally, enabling ``CONFIG_OPENTHREAD_L2_LOG_LEVEL_DBG`` allows you to set the ``CONFIG_OPENTHREAD_L2_DEBUG`` option, which in turn has the following settings:
 
@@ -171,6 +190,23 @@ Additionally, enabling ``CONFIG_OPENTHREAD_L2_LOG_LEVEL_DBG`` allows you to set 
 These options enable dumping 802.15.4 or IPv6 frames (or both) in the debug log output.
 
 You can disable writing to log with the ``CONFIG_OPENTHREAD_L2_LOG_LEVEL_OFF`` option.
+
+Switching device type
+---------------------
+
+An OpenThread device can be configured to run as Full Thread Device (FTD) or Minimal Thread Device (MTD).
+Both device types serve different roles in the Thread network.
+An FTD can be both router and end device, while an MTD can only be an end device.
+
+You can configure the device type using the following Kconfig options:
+
+* ``CONFIG_OPENTHREAD_FTD`` - Enables the Full Thread Device (FTD) thread. This is the default configuration if none is selected.
+* ``CONFIG_OPENTHREAD_MTD`` - Enables the Minimal Thread Device (MTD) thread.
+
+By default, when a Thread device is configured as MTD, it operates as Minimal End Device (MED).
+You can choose to make it operate as Sleepy End Device (SED) by enabling the ``CONFIG_OPENTHREAD_MTD_SED`` option. 
+
+For more information, see `Device Types on OpenThread portal`_.
 
 Available drivers, libraries, and samples
 *****************************************
