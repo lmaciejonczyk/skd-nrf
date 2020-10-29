@@ -57,6 +57,8 @@ In order to define your own board, you can use the following Zephyr guides as re
 * :ref:`custom_board_definition` is a guide to adding your own custom board to the Zephyr build system.
 * :ref:`board_porting_guide` is a complete guide to porting Zephyr to your own board.
 
+.. _memory_footprint_optimization:
+
 Memory footprint optimization
 *****************************
 
