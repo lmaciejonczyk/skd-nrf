@@ -35,6 +35,8 @@ manifest:
       url-base: https://github.com/NordicSemiconductor
     - name: pelioniot
       url-base: https://github.com/PelionIoT
+    - name: lmaciejonczyk
+      url-base: https://github.com/lmaciejonczyk/
 
   # If not otherwise specified, the projects below should be obtained
   # from the ncs remote.
@@ -53,8 +55,8 @@ manifest:
     # https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/introduction/index.html
     # https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/guides/modules.html
     - name: zephyr
-      repo-path: sdk-zephyr
-      revision: 4d068de3f50f6a2de2be0c0b98670e33d28ff493
+      remote: lmaciejonczyk
+      revision: ot/link_metrics
       import:
         # In addition to the zephyr repository itself, NCS also
         # imports the contents of zephyr/west.yml at the above
@@ -124,7 +126,7 @@ manifest:
     - name: nrf-802154
       repo-path: sdk-nrf-802154
       path: nrf-802154
-      revision: 76308d43844018ab0734adc441464d221408cf90
+      revision: c0af88c078f92dccdd0095f54cee385b28e9c03c
       groups:
       - nrf-802154
     # Other third-party repositories.
