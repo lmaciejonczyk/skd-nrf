@@ -126,7 +126,7 @@ manifest:
     - name: nrf-802154
       repo-path: sdk-nrf-802154
       path: nrf-802154
-      revision: 6c8e88efe13640ef5786a70aea596755d35d3df3
+      revision: pull/37/head
       groups:
       - nrf-802154
     # Other third-party repositories.
