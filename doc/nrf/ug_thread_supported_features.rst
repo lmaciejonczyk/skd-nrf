@@ -35,6 +35,12 @@ In |NCS|, you can choose which version of the Thread protocol to use in your app
 By default, |NCS| supports Thread 1.1, but you can enable and configure Thread 1.2 by using :ref:`dedicated options <thread_ug_thread_1_2>`.
 
 .. note::
-    Not all Thread 1.2 functionalities are currently supported.
+    All Thread 1.2 mandatory functionalities are currently implemented, execept for full Border Router support.
     See :ref:`thread_ug_thread_1_2` for the list of 1.2 features that are currently available in |NCS|, with information about how to enable them.
     Currently, the :ref:`ot_cli_sample` sample is the only sample that provides an :ref:`ot_cli_sample_thread_v12`.
+
+    There are known limitations on the Thread 1.2 support:
+
+      #. Current implementation does not guarantee that all retransmitted frames will be secured when using the radio driver transmission security capabilities.
+      Thus, OpenThread retransmissions are disabled by default when :option:`CONFIG_NRF_802154_ENCRYPTION` is enabled and the users may enable them at their own risk.
+      #. Due to code size reasons, the combination of complete set of Thread 1.2 features plus BLE multiprotocol support is not possible for nRF52833 devices.
