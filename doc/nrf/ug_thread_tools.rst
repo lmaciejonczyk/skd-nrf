@@ -274,16 +274,17 @@ The interaction is possible using commands proper to wpanctl, a module installed
 Installing wpantund
 ===================
 
-To ensure that the interaction with the samples works as expected, install the version of wpantund that has been used for testing the |NCS|.
-
 See the `wpantund Installation Guide`_ for general installation instructions.
-To install the verified version, replace the ``git checkout full/latest-release`` command with the following command:
 
-.. parsed-literal::
+.. note::
+   If you are going to use USB transport for communication with NCP, build wpantund with udev library i.e.,
 
-   git checkout 87c90eedce0c75cb68a1cbc34ff36223400862f1
+   .. code-block::
 
-When installing on macOS, follow the instructions for the manual installation and replace the above command to ensure that the correct version is installed.
+      sudo apt-get install libudev-dev
+      ./bootstrap
+      ./configure --with-udev
+      make -j4
 
 .. _ug_thread_tools_wpantund_configuring:
 
@@ -298,7 +299,9 @@ When working with samples that support wpantund, complete the following steps to
    Replace the following parameters:
 
    * *network_interface_name* - Specifies the name of the network interface, for example, ``leader_if``.
-   * *ncp_uart_device* - Specifies the location of the device, for example, :file:`/dev/ttyACM0`.
+   * *ncp_uart_device* - Specifies the location of the device, for example:
+      * for UART transport: :file:`/dev/ttyACM0`
+      * for USB transport - symlink: :file:`/dev/serial/by-id/usb-Nordic_Semiconductor_ASA_Thread_Co-Processor_07AA4C22D2E2C88D-if00`.
    * *baud_rate* - Specifies the baud rate to use.
      The Thread samples support baud rate ``1000000``.
 
@@ -310,9 +313,13 @@ When working with samples that support wpantund, complete the following steps to
 
         wpantund -I *network_interface_name* -s *ncp_uart_device* -b *baud_rate*
 
-     For example::
+     For example (UART transport)::
 
         sudo wpantund -I leader_if -s /dev/ttyACM0 -b 1000000
+
+     For example (USB transport)::
+
+        sudo wpantund -I leader_if -s /dev/serial/by-id/usb-Nordic_Semiconductor_ASA_Thread_Co-Processor_07AA4C22D2E2C88D-if00 -b 1000000
 
    Radio co-processor (RCP)
      When connecting to an RCP node, you must use the ``ot-ncp`` tool to establish the connection.
@@ -451,29 +458,70 @@ Building the OpenThread POSIX applications
 Build the OpenThread POSIX applications by performing the following steps:
 
 #. Open a shell in the OpenThread source code directory :file:`ncs/modules/lib/openthread`.
-#. Initialize the build and clean previous artifacts by running the following commands:
+#. Clean previous artifacts by running the following commands:
 
      .. code-block:: console
 
-        # initialize GNU Autotools
-        ./bootstrap
-
-        # clean previous artifacts
-        make -f src/posix/Makefile-posix clean
+        rm -rf build
 
 #. Build the applications with the required options.
-   For example, to build POSIX applications like ``ot-cli`` or ``ot-ncp`` with log output being redirected to the application, run the following command:
+   For example, to build POSIX application like ``ot-cli`` with support for USB transport and Thread v1.1, run the following command:
 
      .. code-block:: console
 
-        # build core for POSIX (ot-cli, ot-ncp)
-        make -f src/posix/Makefile-posix LOG_OUTPUT=APP
+        ./script/cmake-build posix -DOT_SPINEL_RESET_CONNECTION=ON -DOT_THREAD_VERSION=1.1
 
-   Alternatively, to build POSIX applications like ``ot-daemon`` or ``ot-ctl``, run the following command:
+   Alternatively, to build POSIX applications like ``ot-daemon`` and ``ot-ctl`` with support for USB transport and Thread v1.1, run the following command:
 
      .. code-block:: console
 
-        # build daemon mode core stack for POSIX (ot-daemon, ot-ctl)
-        make -f src/posix/Makefile-posix DAEMON=1
+        ./script/cmake-build posix -DOT_SPINEL_RESET_CONNECTION=ON -DOT_THREAD_VERSION=1.1 -DOT_DAEMON=ON
 
-You can find the generated applications in :file:`./output/posix/bin/`.
+You can find the generated applications in :file:`./build/posix/src/posix/`.
+
+.. note::
+   Build option: `OT_SPINEL_RESET_CONNECTION` is required for properly handling USB communication with NCP/RCP devices which perform hard reset.
+   It concerns NCS and Zephyr's co-processor samples.
+   It depends on libudev-dev library and it is supported only on Linux.
+
+
+Running the OpenThread POSIX applications
+=========================================
+
+When connecting to an RCP node, use the following command:
+
+For ot-cli::
+
+   .. code-block:: console
+
+      sudo ./build/posix/src/posix/ot-cli 'spinel+hdlc+uart://\ *ncp_uart_device*\ ?uart-baudrate=\ *baud_rate*' --verbose
+
+For ot-daemon and ot-ctl:
+
+   .. code-block:: console
+
+      sudo ./build/posix/src/posix/ot-daemon 'spinel+hdlc+uart://\ *ncp_uart_device*\ ?uart-baudrate=\ *baud_rate*' --verbose
+      sudo ./build/posix/src/posix/ot-ctl
+
+Replace the following parameters:
+
+* *ncp_uart_device* - Specifies the location of the device, for example:
+   * for UART transport: :file:`/dev/ttyACM0`
+   * for USB transport - symlink: :file:`/dev/serial/by-id/usb-Nordic_Semiconductor_ASA_Thread_Co-Processor_07AA4C22D2E2C88D-if00`.
+* *baud_rate* - Specifies the baud rate to use.
+   The Thread Co-Processor sample support baud rate ``1000000``.
+
+   For example ot-cli with USB transport:
+      .. code-block:: console
+
+         sudo ./build/posix/src/posix/ot-cli 'spinel+hdlc+uart:///dev/serial/by-id/usb-Nordic_Semiconductor_ASA_Thread_Co-Processor_07AA4C22D2E2C88D-if00?uart-baudrate=1000000' --verbose
+
+   For example ot-daemon with UART transport:
+
+      .. code-block:: console
+
+         sudo ./build/posix/src/posix/ot-daemon 'spinel+hdlc+uart:///dev/ttyACM0?uart-baudrate=1000000' --verbose
+         sudo ./build/posix/src/posix/ot-ctl
+
+.. note::
+   It is required to use symlink to specify device for USB connection for properly handling communication after resetting the device.
