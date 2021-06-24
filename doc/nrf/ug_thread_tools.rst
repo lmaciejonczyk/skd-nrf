@@ -294,8 +294,6 @@ Configuring wpantund
 When working with samples that support wpantund, complete the following steps to start the wpantund processes:
 
 1. Open a shell and run the wpantund process.
-   The required command depends on whether you want to connect to a network co-processor (NCP) node or a radio co-processor (RCP) node.
-
    Replace the following parameters:
 
    * *network_interface_name* - Specifies the name of the network interface, for example, ``leader_if``.
@@ -320,20 +318,6 @@ When working with samples that support wpantund, complete the following steps to
      For example (USB transport)::
 
         sudo wpantund -I leader_if -s /dev/serial/by-id/usb-Nordic_Semiconductor_ASA_Thread_Co-Processor_07AA4C22D2E2C88D-if00 -b 1000000
-
-   Radio co-processor (RCP)
-     When connecting to an RCP node, you must use the ``ot-ncp`` tool to establish the connection.
-     See :ref:`ug_thread_tools_ot_apps` for more information.
-     Use the following command:
-
-     .. parsed-literal::
-        :class: highlight
-
-        wpantund -I *network_interface_name* -s 'system:./output/posix/bin/ot-ncp spinel+hdlc+uart://\ *ncp_uart_device*\ ?uart-baudrate=\ *baud_rate*
-
-     For example::
-
-        sudo wpantund -I leader_if -s 'system:./output/posix/bin/ot-ncp spinel+hdlc+uart:///dev/ttyACM0?uart-baudrate=1000000'
 
 #. Open another shell and run the wpanctl process by using the following command:
 
@@ -392,8 +376,6 @@ When working with samples that support Pyspinel, complete the following steps to
 
 1. Open a shell in a Pyspinel root directory.
 #. Run Pyspinel to connect to the node.
-   The required command depends on whether you want to connect to a network co-processor (NCP) node or a radio co-processor (RCP) node.
-
    Replace the following parameters:
 
    * *debug_level* - Specifies the debug level, range: ``0-5``.
@@ -413,23 +395,6 @@ When working with samples that support Pyspinel, complete the following steps to
 
         sudo python3 spinel-cli.py -d 4 -u /dev/ttyACM0 -b 1000000
 
-   Radio co-processor (RCP)
-     When connecting to an RCP node, you must use the ``ot-ncp`` tool to establish the connection.
-     See :ref:`ug_thread_tools_ot_apps` for more information.
-     To enable logs from the RCP Spinel backend, you must build the ``ot-ncp`` tool with option ``LOG_OUTPUT=APP``.
-     See :ref:`ug_thread_tools_building_ot_apps` for information on how to build the tool.
-
-     Use the following command to connect to an RCP node:
-
-     .. parsed-literal::
-        :class: highlight
-
-        sudo python3 spinel-cli.py -d *debug_level* -p './output/posix/bin/ot-ncp spinel+hdlc+uart://\ *ncp_uart_device*\ ?uart-baudrate=\ *baud_rate*
-
-     For example::
-
-        sudo python3 spinel-cli.py -d 4 -p './output/posix/bin/ot-ncp spinel+hdlc+uart:///dev/ttyACM0?uart-baudrate=1000000'
-
 .. _ug_thread_tools_ot_apps:
 
 OpenThread POSIX applications
@@ -439,7 +404,6 @@ OpenThread POSIX applications allow to communicate with a radio co-processor in 
 
 OpenThread provides the following applications:
 
-* ``ot-ncp`` - Supports :ref:`ug_thread_tools_wpantund` for the RCP architecture.
 * ``ot-cli`` - Works like the :ref:`ot_cli_sample` sample for the RCP architecture.
 * ``ot-daemon`` and ``ot-ctl`` - Provides the same functionality as ``ot-cli``, but keeps the daemon running in the background all the time.
   See `OpenThread Daemon`_ for more information.
