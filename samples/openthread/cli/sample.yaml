@@ -36,3 +36,13 @@ tests:
       - nrf52840dk_nrf52840
       - nrf52833dk_nrf52833
       - nrf5340dk_nrf5340_cpuapp
+  samples.openthread.cli.usb:
+    build_only: true
+    platform_allow: nrf5340dk_nrf5340_cpuapp nrf52840dk_nrf52840 nrf52840dongle_nrf52840 nrf52833dk_nrf52833
+    tags: ci_build
+    extra_args: OVERLAY_CONFIG=overlay-usb.conf
+    integration_platforms:
+      - nrf5340dk_nrf5340_cpuapp
+      - nrf52840dk_nrf52840
+      - nrf52840dongle_nrf52840
+      - nrf52833dk_nrf52833
