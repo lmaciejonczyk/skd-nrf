@@ -11,3 +11,29 @@ endmenu
 module = OT_COMMAND_LINE_INTERFACE
 module-str = ot_cli
 source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
+
+config PPI_TRACE_PIN_START_TX
+	int "Trace pin for start tx activity"
+	default 3
+	help
+	  Pin is toggled when the transmission is started.
+
+
+config PPI_TRACE_PIN_START_RX
+	int "Trace pin for start rx activity"
+	default 4
+	help
+	  Pin is toggled when the radio starts receiving.
+
+config PPI_TRACE_PIN_END_RX_OR_TX
+	int "Trace pin for end tx or rx activity"
+	default 28
+	help
+	  Pin is toggled when a frame is received.
+
+
+config PPI_TRACE_PIN_LAST_BIT_SEND_ON_THE_AIR
+	int "Trace pin for last bit send on the air"
+	default 29
+	help
+	  Pin is toggled when the last bit is sent on the air.

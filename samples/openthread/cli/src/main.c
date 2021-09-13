@@ -6,6 +6,8 @@
 
 #include <zephyr.h>
 #include <logging/log.h>
+#include <debug/ppi_trace.h>
+#include <hal/nrf_radio.h>
 
 #if defined(CONFIG_BT)
 #include "ble.h"
@@ -17,6 +19,39 @@
 #endif
 
 LOG_MODULE_REGISTER(cli_sample, CONFIG_OT_COMMAND_LINE_INTERFACE_LOG_LEVEL);
+
+static void radio_ppi_trace_setup(void)
+{
+	uint32_t start_tx;
+	uint32_t start_rx;
+	uint32_t end_tx_or_rx;
+	uint32_t last_bit_on_the_air;
+	void *handle;
+
+	end_tx_or_rx = nrf_radio_event_address_get(NRF_RADIO, NRF_RADIO_EVENT_DISABLED);
+
+	start_tx = nrf_radio_event_address_get(NRF_RADIO, NRF_RADIO_EVENT_TXREADY);
+	// handle = ppi_trace_config(CONFIG_PPI_TRACE_PIN_START_TX, start_tx);
+	handle = ppi_trace_pair_config(CONFIG_PPI_TRACE_PIN_START_TX, start_tx, end_tx_or_rx);
+	__ASSERT(handle != NULL, "Failed to configure PPI trace.\n");
+	ppi_trace_enable(handle);
+
+	start_rx = nrf_radio_event_address_get(NRF_RADIO, NRF_RADIO_EVENT_RXREADY);
+	// handle = ppi_trace_config(CONFIG_PPI_TRACE_PIN_START_RX, start_rx);
+	handle = ppi_trace_pair_config(CONFIG_PPI_TRACE_PIN_START_RX, start_rx, end_tx_or_rx);
+	__ASSERT(handle != NULL, "Failed to configure PPI trace.\n");
+	ppi_trace_enable(handle);
+
+	// handle = ppi_trace_config(CONFIG_PPI_TRACE_PIN_END_RX_OR_TX, end_tx_or_rx);
+	// __ASSERT(handle != NULL, "Failed to configure PPI trace.\n");
+	// ppi_trace_enable(handle);
+
+	last_bit_on_the_air = nrf_radio_event_address_get(NRF_RADIO, NRF_RADIO_EVENT_PHYEND);
+	handle = ppi_trace_config(CONFIG_PPI_TRACE_PIN_LAST_BIT_SEND_ON_THE_AIR,
+				  last_bit_on_the_air);
+	__ASSERT(handle != NULL, "Failed to configure PPI trace.\n");
+	ppi_trace_enable(handle);
+}
 
 #define WELLCOME_TEXT \
 	"\n\r"\
@@ -67,6 +102,8 @@ void main(void)
 #endif
 
 	LOG_INF(WELLCOME_TEXT);
+
+	radio_ppi_trace_setup();
 
 #if CONFIG_BT
 	ble_enable();
