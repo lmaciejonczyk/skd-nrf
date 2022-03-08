@@ -131,7 +131,7 @@ manifest:
     - name: nrf-802154
       repo-path: sdk-nrf-802154
       path: nrf-802154
-      revision: 11986be74d191f6ea4de17d059cfb87ff7f86dd9
+      revision: 301611fa9b3dbca33aa9b5406971bc2e427eaa47
       groups:
       - nrf-802154
     - name: cjson
