@@ -55,7 +55,7 @@ manifest:
     - name: zephyr
       remote: lmaciejonczyk
       repo-path: sdk-zephyr
-      revision: debug/ssed_parent_reconnect
+      revision: debug/csl
       import:
         # In addition to the zephyr repository itself, NCS also
         # imports the contents of zephyr/west.yml at the above
@@ -132,12 +132,6 @@ manifest:
           path: third_party/nlassert/repo
         - name: pigweed
           path: third_party/pigweed/repo
-    - name: nrf-802154
-      repo-path: sdk-nrf-802154
-      path: nrf-802154
-      revision: 6772a02195b9150f7c659275c50141237d1e6799
-      groups:
-      - nrf-802154
     - name: cjson
       repo-path: sdk-cjson
       path: modules/lib/cjson
@@ -174,9 +168,10 @@ manifest:
       revision: 0.29.1
       remote: memfault
     - name: openthread
-      repo-path: sdk-openthread
+      remote: lmaciejonczyk
+      repo-path: openthread
       path: modules/lib/openthread
-      revision: 02e61a2edd80417e9b8f9a5f4c1b2dad4ac486b4
+      revision: debug/csl
 
   # West-related configuration for the nrf repository.
   self:
