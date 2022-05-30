@@ -262,8 +262,12 @@ void main(void)
 
 void nrf_802154_serialization_error(const nrf_802154_ser_err_data_t *err)
 {
-	(void)err;
-	__ASSERT(false, "802.15.4 serialization error");
+	printk("802.15.4 serialization error: %d", err->reason);
+	while (1) {
+		;
+	}
+
+	__ASSERT(false, "802.15.4 serialization error: %d", err->reason);
 }
 
 void nrf_802154_sl_fault_handler(uint32_t id, int32_t line, const char *err)
