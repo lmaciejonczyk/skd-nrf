@@ -18,10 +18,6 @@ choice LIBC_IMPLEMENTATION
 	default NEWLIB_LIBC
 endchoice
 
-config NUM_METAIRQ_PRIORITIES
-	int
-	default 1
-
 config SYSTEM_WORKQUEUE_STACK_SIZE
 	int
 	default 1120
