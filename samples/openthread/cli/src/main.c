@@ -13,6 +13,7 @@
 
 #include <zephyr/drivers/uart.h>
 #include <zephyr/usb/usb_device.h>
+#include <dk_buttons_and_leds.h>
 
 LOG_MODULE_REGISTER(cli_sample, CONFIG_OT_COMMAND_LINE_INTERFACE_LOG_LEVEL);
 
@@ -25,6 +26,20 @@ LOG_MODULE_REGISTER(cli_sample, CONFIG_OT_COMMAND_LINE_INTERFACE_LOG_LEVEL);
 	"For the full commands list refer to the OpenThread CLI " \
 	"documentation at:\n\r" \
 	"https://github.com/openthread/openthread/blob/master/src/cli/README.md\n\r"
+
+void buggy_function(void)
+{
+	*(uint32_t *)0xbadcafe = 0x0;
+}
+
+static void on_button_changed(uint32_t button_state, uint32_t has_changed)
+{
+	uint32_t buttons = button_state & has_changed;
+
+	if (buttons & DK_BTN1_MSK) {
+		buggy_function();
+	}
+}
 
 void main(void)
 {
@@ -65,6 +80,12 @@ void main(void)
 #endif
 
 	LOG_INF(WELLCOME_TEXT);
+
+	int ret = dk_buttons_init(on_button_changed);
+	if (ret) {
+		LOG_ERR("Cannot init buttons (error: %d)", ret);
+		return;
+	}
 
 #if CONFIG_BT
 	ble_enable();
