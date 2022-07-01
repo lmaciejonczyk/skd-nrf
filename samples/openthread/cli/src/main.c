@@ -38,6 +38,8 @@ static void on_button_changed(uint32_t button_state, uint32_t has_changed)
 
 	if (buttons & DK_BTN1_MSK) {
 		buggy_function();
+	} else if (buttons & DK_BTN2_MSK) {
+		__ASSERT(false, "typical assert");
 	}
 }
 
