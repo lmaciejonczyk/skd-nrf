@@ -43,6 +43,35 @@ static void on_button_changed(uint32_t button_state, uint32_t has_changed)
 	}
 }
 
+#if !defined(CONFIG_LOG)
+// Zephy's z_arm_fault() function consumes and clears
+// the SCB->CFSR register so we must wrap their function
+// so we can preserve the pristine fault register values.
+void __wrap_z_arm_fault(uint32_t msp, uint32_t psp, uint32_t exc_return,
+			_callee_saved_t *callee_regs)
+{
+	// z_arch_esf_t *esf;
+	// bool nested_exc = false;
+
+	// // psp was active prior to exception if bit 2 is set
+	// // otherwise, the msp was active
+	// if (exc_return & (1 << 2)) {
+	// 	/* Returning to thread mode */
+	// 	esf = (z_arch_esf_t *)psp;
+	// } else {
+	// 	/* Returning to handler mode */
+	// 	esf = (z_arch_esf_t *)msp;
+	// 	nested_exc = true;
+	// }
+
+	arch_irq_lock();
+
+	while (1) {
+		__ASM("nop");
+	}
+}
+#endif
+
 void main(void)
 {
 #if DT_NODE_HAS_COMPAT(DT_CHOSEN(zephyr_shell_uart), zephyr_cdc_acm_uart)
