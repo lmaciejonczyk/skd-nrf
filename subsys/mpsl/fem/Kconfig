@@ -6,6 +6,7 @@
 
 DT_COMPAT_NORDIC_NRF21540_GPIO := nordic,nrf21540-fem
 DT_COMPAT_GENERIC_FEM_2_CTRL_PIN := generic-fem-two-ctrl-pins
+DT_COMPAT_PSEMI := psemi
 DT_COMPAT_NORDIC_NRF2220 := nordic,nrf2220-fem
 DT_COMPAT_NORDIC_NRF2240 := nordic,nrf2240-fem
 
@@ -25,6 +26,10 @@ config MPSL_FEM_NRF21540_GPIO_SPI_SUPPORT
 config MPSL_FEM_GENERIC_TWO_CTRL_PINS_SUPPORT
 	bool
 	default $(dt_nodelabel_has_compat,nrf_radio_fem,$(DT_COMPAT_GENERIC_FEM_2_CTRL_PIN))
+
+config MPSL_FEM_PSEMI_SUPPORT
+	bool
+	default $(dt_nodelabel_has_compat,nrf_radio_fem,$(DT_COMPAT_PSEMI))
 
 config MPSL_FEM_NRF2220_SUPPORT
 	bool
@@ -103,7 +108,7 @@ config MPSL_FEM_NRF21540_GPIO_SPI
 	  FEM device is nRF21540 and it uses both GPIO and SPI.
 
 config MPSL_FEM_SIMPLE_GPIO
-	depends on MPSL_FEM_GENERIC_TWO_CTRL_PINS_SUPPORT
+	depends on MPSL_FEM_GENERIC_TWO_CTRL_PINS_SUPPORT && !MPSL_FEM_PSEMI_SUPPORT
 	select NRFX_GPIOTE
 	select NRFX_PPI if HAS_HW_NRF_PPI
 	select NRFX_DPPI if HAS_HW_NRF_DPPIC
@@ -114,6 +119,16 @@ config MPSL_FEM_SIMPLE_GPIO
 	  This option was originally designed to support the SKY66112-11,
 	  but is potentially compatible with other devices with the same
 	  control method.
+
+config MPSL_FEM_PSEMI
+	depends on MPSL_FEM_PSEMI_SUPPORT
+	select NRFX_GPIOTE
+	select NRFX_PPI if HAS_HW_NRF_PPI
+	select NRFX_DPPI if HAS_HW_NRF_DPPIC
+	select MPSL_FEM_NCS_SUPPORTED_FEM_USED
+	bool "PSEMI front-end module"
+	help
+	  FEM device is PSEMI.
 
 config MPSL_FEM_NRF2220
 	depends on MPSL_FEM_NRF2220_SUPPORT
@@ -280,6 +295,10 @@ config MPSL_FEM_INIT_PRIORITY
 	default 51 if (MPSL_FEM_NRF2220 && MPSL_FEM_NRF2220_TWI_SUPPORT) || \
 		      (MPSL_FEM_NRF2240 && MPSL_FEM_NRF2240_TWI_SUPPORT)
 	default KERNEL_INIT_PRIORITY_DEVICE
+
+if MPSL_FEM_PSEMI
+rsource "psemi/models/power_map/Kconfig"
+endif # MPSL_FEM_PSEMI
 
 module=MPSL_FEM
 module-str=MPSL_FEM
