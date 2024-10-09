@@ -41,6 +41,10 @@ manifest:
       url-base: https://github.com/boschsensortec
     - name: eembc
       url-base: https://github.com/eembc
+    - name: mrt
+      url-base: https://projecttools.nordicsemi.no/bitbucket/scm/MRT
+    - name: lmaciejonczyk
+      url-base: https://github.com/lmaciejonczyk
 
   # If not otherwise specified, the projects below should be obtained
   # from the ncs remote.
@@ -71,8 +75,9 @@ manifest:
     # https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/introduction/index.html
     # https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/guides/modules.html
     - name: zephyr
+      remote: lmaciejonczyk
       repo-path: sdk-zephyr
-      revision: d3d3f66845737630687c9018cdb687319b74ec17
+      revision: luma/openthread_cli_vendor_extension
       import:
         # In addition to the zephyr repository itself, NCS also
         # imports the contents of zephyr/west.yml at the above
@@ -182,7 +187,7 @@ manifest:
     - name: nrf-802154
       repo-path: sdk-nrf-802154
       path: nrf-802154
-      revision: 18a2e83559df139e0b5ca05823a55d637a76c7e6
+      revision: luma/fem_psemi
       groups:
         - nrf-802154
     - name: soc-hwmv1
@@ -195,8 +200,8 @@ manifest:
       # Only for internal Nordic development
       repo-path: dragoon.git
       remote: dragoon
-      revision: 2ca0dec9beaa0cc5c743f619d724be7445de86fe
-      submodules: true
+      revision: develop/fem_psemi
+      # submodules: true
       groups:
         - dragoon
     - name: cjson
@@ -300,7 +305,11 @@ manifest:
       revision: d5fad6bd094899101a4e5fd53af7298160ced6ab
       groups:
         - benchmark
-
+    - name: ncs_fem_psemi
+      remote: mrt
+      repo-path: ncs_fem_psemi.git
+      path: nrf/subsys/mpsl/fem/psemi
+      revision: develop
 
   # West-related configuration for the nrf repository.
   self:
