@@ -297,6 +297,7 @@ config MPSL_FEM_INIT_PRIORITY
 	default KERNEL_INIT_PRIORITY_DEVICE
 
 if MPSL_FEM_PSEMI
+rsource "psemi/Kconfig"
 rsource "psemi/models/power_map/Kconfig"
 endif # MPSL_FEM_PSEMI
 
